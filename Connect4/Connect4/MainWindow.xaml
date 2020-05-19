@@ -5,8 +5,72 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Connect4"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="CONNECT4" Height="900" Width="1600"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        Background="LightBlue"
+        KeyUp="Window_KeyUp">
     <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="15*" />
+            <ColumnDefinition Width="10*" />
+        </Grid.ColumnDefinitions>
+        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="9*" />
+        </Grid.RowDefinitions>
+
+        <Grid x:Name="Arrows_Grid" Grid.Column="0" Grid.Row="0" Margin="30 10 45 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+        </Grid>
+
+        <Grid x:Name="Checkers_Grid" Grid.Column="0" Grid.Row="1" Margin="30 20 45 30">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+        </Grid>
+
+        <Image x:Name="board_wall" PreviewMouseMove="Board_wall_PreviewMouseMove" PreviewMouseLeftButtonUp="Board_wall_PreviewMouseLeftButtonUp" Grid.Column="0"  Grid.Row="1" Margin="10 ">
+            <Image.Source>
+                <BitmapImage UriSource="/Resources/board.png" />
+            </Image.Source>
+        </Image>
+
+        <Grid Grid.Column="1" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="2*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Button x:Name="newGameButton" Click="NewGameButton_Click">
+                START NEW GAME
+            </Button>
+            <TextBlock x:Name="Turn_TextBlock" Grid.Row="1"/>
+        </Grid>
         
     </Grid>
 </Window>

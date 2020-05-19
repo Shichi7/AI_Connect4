@@ -4,6 +4,7 @@
              xmlns:local="clr-namespace:Connect4"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <DoubleAnimation x:Key="FadeOutAnimation" Storyboard.TargetProperty="(Window.Opacity)" From="0.0" To="1.0" Duration="0:0:1"/>
+        <DoubleAnimation x:Key="FadeInAnimation" Storyboard.TargetProperty="(Window.Opacity)" From="0.0" To="1.0" Duration="0:0:1"/>
     </Application.Resources>
 </Application>
