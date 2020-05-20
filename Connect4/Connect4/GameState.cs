@@ -103,6 +103,16 @@ namespace Connect4
 
             return row;
         }
+
+        public void reverseMove(int column)
+        {
+            checkers_count--;
+            column_count[column]--;
+            int row = column_count[column];
+
+            board[row, column] = -1;
+        }
+
         public bool spaceInColumn(int column)
         {
             return column_count[column] < 6;
