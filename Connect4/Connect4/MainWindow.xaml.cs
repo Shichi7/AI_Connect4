@@ -28,9 +28,11 @@ namespace Connect4
         public MainWindow()
         {
             InitializeComponent();
+
             toggleWindowSize();
             fillCheckersGrid();
             fillArrowsGrid();
+            setupDefaultOpacity();
             manager = new GameplayManager(this);
         }
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -47,14 +49,31 @@ namespace Connect4
         }
         private void setFontSize()
         {
-            Application.Current.Resources["GlobalFontSize"] = Height * font_scale;
-            Application.Current.Resources["TitleFontSize"] = 1.3 * Height * font_scale;
-            Application.Current.Resources["SecondaryFontSize"] = 0.8 * Height * font_scale;
+            Application.Current.Resources["SmallFontSize"] = 0.7 * Height * font_scale;
+            Application.Current.Resources["NormalFontSize"] = 1.5 * Height * font_scale;
+            Application.Current.Resources["BigFontSize"] = 2 * Height * font_scale;
         }
+        private void setupDefaultOpacity()
+        {
+            SolidColorBrush opaqueBrush = new SolidColorBrush(Colors.Black);
+            opaqueBrush.Opacity = 0.4;
 
+            StartButton1.Background = opaqueBrush;
+            StartButton2.Background = opaqueBrush;
+            StartButton3.Background = opaqueBrush;
+            Turn_TextBlock.Background = opaqueBrush;
+            Algorithm1Button.Background = opaqueBrush;
+            Algorithm2Button.Background = opaqueBrush;
+            Depth1Button.Background = opaqueBrush;
+            Depth2Button.Background = opaqueBrush;
+            Stats1_TextBlock.Background = opaqueBrush;
+            Stats2_TextBlock.Background = opaqueBrush;
+            Strategy1Button.Background = opaqueBrush;
+            Strategy2Button.Background = opaqueBrush;
+        }
         public void toggleWindowSize()
         {
-            double small_window_percentage = 50;
+            double small_window_percentage = 65;
             double large_window_percentage = 100;
 
             double ratio_x = 16;
@@ -219,17 +238,52 @@ namespace Connect4
             }
         }
 
-        private void NewGameButton_Click(object sender, RoutedEventArgs e)
-        {
-            manager.startGame();
-        }
-
         private void Board_wall_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (manager.game_started)
             {
                 manager.newMove(current_column);
             }
+        }
+
+        private void Button_MouseEnter(object sender, MouseEventArgs e)
+        {
+            SolidColorBrush opaqueBrush = new SolidColorBrush(Colors.Black);
+            opaqueBrush.Opacity = 0.6;
+
+            ((TextBox)sender).Background = opaqueBrush;
+        }
+
+        private void Button_MouseLeave(object sender, MouseEventArgs e)
+        {
+            setupDefaultOpacity();
+        }
+
+        private void StartButton1_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            manager.startGame(0);
+        }
+
+        private void StartButton2_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            manager.startGame(1);
+        }
+
+        private void StartButton3_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            manager.startGame(2);
+        }
+
+        private void AlgorithmButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            TextBox box = (TextBox)sender;
+            box.Text = box.Text.Equals("MINMAX") ? "ALPHA/BETA" : box.Text.Equals("ALPHA/BETA") ? "RANDOM" : "MINMAX";
+        }
+
+        private void StrategyButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            TextBox box = (TextBox)sender;
+            box.Text = box.Text.Equals("ONLY WIN") ? "BALANCED" : box.Text.Equals("BALANCED") ? "PREFER WIN" : "ONLY WIN";
         }
     }
 }

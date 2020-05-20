@@ -4,18 +4,20 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
+using System.Windows;
+using System.Globalization;
 
 namespace Connect4
 {
     class GameplayManager
     {
         MainWindow window;
+        GameState state;
+        Player[] players = new Player[2];
+
         public bool game_started;
         int player_turn;
-        int mode;
-        int checkers_count;
-        int[,] board = new int[6,7];
-        int[] column_count = new int[7];
+
         Random random = new Random();
         public GameplayManager(MainWindow window)
         {
@@ -24,155 +26,107 @@ namespace Connect4
     
         public void startGame(int mode = 0)
         {
+            state = new GameState(window);
             game_started = true;
-            checkers_count = 0;
-            this.mode = mode;
-            for (int column = 0; column<7; column++)
-            {
-                for (int row = 0; row < 6; row++)
-                {
-                    board[row, column] = -1;
-                    Image yellow = (Image)(window.FindName("yellow" + row.ToString() + column.ToString()));
-                    Image red = (Image)(window.FindName("red" + row.ToString() + column.ToString()));
 
-                    red.Visibility = System.Windows.Visibility.Hidden;
-                    yellow.Visibility = System.Windows.Visibility.Hidden;
-                }
-                column_count[column] = 0;
+            string cpu1_alg = window.Algorithm1Button.Text;
+            int cpu1_depth = int.Parse(window.Depth1Button.Text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite);
+            string cpu2_alg = window.Algorithm2Button.Text;
+            int cpu2_depth = int.Parse(window.Depth2Button.Text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite);
+            string cpu1_strategy = window.Strategy1Button.Text;
+            string cpu2_strategy = window.Strategy2Button.Text;
+
+            if (mode==0)
+            {
+                players[0] = new Player(1, "human");
+                players[1] = new Player(2, "human");
+            }
+            else if (mode==1)
+            {
+                players[0] = new Player(1, "human");
+                players[1] = new Player(2, cpu1_alg, cpu1_depth, cpu1_strategy);
+            }
+            else if (mode==2)
+            {
+                players[0] = new Player(1, cpu1_alg, cpu1_depth, cpu1_strategy);
+                players[1] = new Player(2, cpu2_alg, cpu2_depth, cpu2_strategy);
             }
 
-            randomPlayerTurn();
-        }
+            window.Turn_TextBlock.Style = window.FindResource("YELLOW" + "TextBox") as Style;
 
-        private void randomPlayerTurn()
-        {
             player_turn = random.Next(2);
+            players[player_turn].color = "YELLOW";
+            players[(player_turn + 1) % 2].color = "RED";
             updatePlayerTurnText();
+            players[player_turn].watch.Start();
+
+            window.Stats1_TextBlock.Text = players[0].getString();
+            window.Stats2_TextBlock.Text = players[1].getString();
+
+            if (isCPUMove()) newMove();
         }
 
         private void updatePlayerTurnText()
         {
-            window.Turn_TextBlock.Text = "PLAYER " + getPlayersColor(player_turn) + " TURN";
+            window.Turn_TextBlock.Text = "PLAYER " + players[player_turn].color + " TURN";
         }
 
-        private bool checkCombination(int[] combination)
+        private void swapPlayer()
         {
-            bool win = false;
-
-            int count = 1;
-            for (int i = 0; i < 6; i++)
-            {
-                if ((combination[i] != -1) && (combination[i + 1] != -1))
-                {
-                    if (combination[i] == combination[i + 1])
-                    {
-                        count++;
-                        if (count == 4) win = true;
-                    }
-                    else count = 1;
-                }
-                else count = 1;
-            }
-            return win;
+            player_turn = (player_turn + 1) % 2;
+            players[player_turn].watch.Start();
+            updatePlayerTurnText();
+            window.Turn_TextBlock.Style = window.FindResource(players[player_turn].color + "TextBox") as Style;
         }
-
-        private int[] getCombination(int combinationType, int last_row, int last_column)
+        public void newMove(int column = -1)
         {
-            int[] combination = new int[7];
-            int row = -1, column = -1;
-
-            int counter = 0;
-            for (int i = -3; i <= 3; i++)
+            if (column == -1)
             {
-                if (combinationType == 0)
-                {
-                    row = last_row;
-                    column = last_column + i;
-                }
-                else if (combinationType == 1)
-                {
-                    row = last_row + i;
-                    column = last_column;
-                }
-                else if (combinationType == 2)
-                {
-                    row = last_row + i;
-                    column = last_column + i;
-                }
-                else if (combinationType == 3)
-                {
-                    row = last_row - i;
-                    column = last_column + i;
-                }
-
-                combination[counter] = -1;
-                if ((row >= 0) && (column >= 0))
-                {
-                    if ((row < 6) && (column < 7))
-                    {
-                        combination[counter] = board[row, column];
-                    }
-                }
-
-                counter++;
+                column = random.Next(7);
             }
 
-            return combination;
-        }
-
-        private void checkIfFinished(int last_row, int last_column)
-        {
-            bool win = false;
-
-            int counter = 0;
-            while ((!win)&&(counter<4))         
+            if (state.spaceInColumn(column))
             {
-                win = checkCombination(getCombination(counter, last_row, last_column));
-                counter++;
-            }
-
-            if (win)
-            {
-                game_started = false;
-                player_turn = (player_turn + 1) % 2;
-                window.Turn_TextBlock.Text = "PLAYER " + getPlayersColor(player_turn) + " WINS!";
-            }
-            else if (checkers_count == 42)
-            {
-                game_started = false;
-                window.Turn_TextBlock.Text = "IT IS A TIE!";
-            }
-        }
-
-        public void newMove(int column)
-        {
-            int row = column_count[column];
-            if (row<6)
-            {
-                Image checker = (Image)window.FindName("red"+ row + column);
-                if (player_turn == 1)
-                {
-                    checker = (Image)window.FindName("yellow" + row + column);
-                }
+                int row = state.newMove(column, player_turn);
+                string checker_name = players[player_turn].color.ToLower() + row + column;
+                Image checker = (Image)window.FindName(checker_name);
                 checker.Visibility = System.Windows.Visibility.Visible;
-                column_count[column]++;
-                checkers_count++;
-                board[row, column] = player_turn;
 
-                player_turn = (player_turn + 1) % 2;
-                updatePlayerTurnText();
-                checkIfFinished(row, column);
+                players[player_turn].moveMade();
+
+                window.Stats1_TextBlock.Text = players[0].getString();
+                window.Stats2_TextBlock.Text = players[1].getString();
+
+
+                if (state.checkIfFinished(row, column))
+                {
+                    game_started = false;
+                    players[player_turn].win = true;
+                    window.Turn_TextBlock.Text = "PLAYER " + players[player_turn].color + " WINS!";
+                }
+                else if (state.checkIfTied())
+                {
+                    game_started = false;
+                    window.Turn_TextBlock.Text = "IT IS A TIE!";
+                }
+
+                if (game_started)
+                {
+                    swapPlayer();
+                }
             }
+
+            if (isCPUMove()) newMove();
         }
-        private string getPlayersColor(int player)
+
+        public bool isCPUMove()
         {
-            string color = "YELLOW";
-            if (player == 0)
+            bool cpu_move = false;
+            if ((game_started) && (!players[player_turn].algorithm.Equals("human")))
             {
-                color = "RED";
+                cpu_move = true;
             }
-            return color;
+            return cpu_move;
         }
-
     }
 }
