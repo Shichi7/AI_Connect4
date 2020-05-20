@@ -94,9 +94,12 @@ namespace Connect4
 
                 players[player_turn].moveMade();
 
+                state.calculateWinningRows();
+                players[player_turn].setWinningRows(state.players_winning_rows[player_turn], state.players_winning_rows[(player_turn + 1) % 2]);
+                players[(player_turn+1)%2].setWinningRows(state.players_winning_rows[(player_turn + 1) % 2], state.players_winning_rows[player_turn]);
+
                 window.Stats1_TextBlock.Text = players[0].getString();
                 window.Stats2_TextBlock.Text = players[1].getString();
-
 
                 if (state.checkIfFinished(row, column))
                 {

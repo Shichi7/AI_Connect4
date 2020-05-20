@@ -17,10 +17,10 @@ namespace Connect4
         public bool win;
         public double total_time;
         public Stopwatch watch;
-        public int wage1;
-        public int wage2;
+        public double wage1;
+        public double wage2;
         public int winning_rows;
-        public int score;
+        public double score;
           
 
         public Player(int number, string algorithm, int depth = 0, string strategy = "")
@@ -50,6 +50,12 @@ namespace Connect4
 
             winning_rows = 0;
             score = 0;
+        }
+
+        public void setWinningRows(int winning_rows, int opponent_rows)
+        {
+            this.winning_rows = winning_rows;
+            score = (double)winning_rows * wage1 + (double)opponent_rows * wage2;
         }
 
         public string getString()

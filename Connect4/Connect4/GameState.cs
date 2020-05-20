@@ -15,14 +15,16 @@ namespace Connect4
         int[,] board = new int[6, 7];
         int[] column_count = new int[7];
 
-        public int current_winning_rows;
-        public int opponent_winning_rows;
+        public int[] players_winning_rows;
 
         public GameState(MainWindow window)
         {
             checkers_count = 0;
-            current_winning_rows = 0;
-            opponent_winning_rows = 0;
+
+            players_winning_rows = new int[2];
+            players_winning_rows[0] = 0;
+            players_winning_rows[1] = 0;
+
 
             for (int column = 0; column < 7; column++)
             {
@@ -38,6 +40,59 @@ namespace Connect4
                 column_count[column] = 0;
             }
         }
+
+        public void calculateWinningRows()
+        {
+            players_winning_rows[0] = 0;
+            players_winning_rows[1] = 0;
+
+            for (int column = 0; column<7; column++)
+            {
+                for (int row = 0; row<6; row++)
+                {
+                    if (column<4) //rzedy
+                    {
+                        checkWinningRow(row, column, 0);
+                    }
+
+                    if (row < 3) //kolumny
+                    {
+                        checkWinningRow(row, column, 1);
+                    }
+
+                    if ((column < 4)&&(row<3)) //skosy1
+                    {
+                        checkWinningRow(row, column, 2);
+                    }
+
+                    if ((column < 4) && (row > 2)) //skosy2
+                    {
+                        checkWinningRow(row, column, 3);
+                    }
+                }
+            }
+        }
+
+        public void checkWinningRow(int row, int column, int mode)
+        {
+            int[] counters = new int[2];
+            counters[0] = 0;
+            counters[1] = 0;
+            int value = -1;
+
+            for (int i = 0; i < 4; i++)
+            {
+                if (mode==0) value = board[row, column + i];
+                else if (mode==1) value = board[row + i, column];
+                else if (mode==2) value = board[row + i, column + i];
+                else if (mode==3) value = board[row - i, column + i];
+
+                if (value != -1) counters[value]++;
+            }
+            if ((counters[0] > 0) && (counters[1] == 0)) players_winning_rows[0]++;
+            else if ((counters[1] > 0) && (counters[0] == 0)) players_winning_rows[1]++;
+        }
+
         public int newMove(int column, int player_turn)
         {
             int row = column_count[column];
@@ -142,11 +197,5 @@ namespace Connect4
             }
             return tie;
         }
-
-        public void calculateWinningRows()
-        {
-
-        }
-
     }
 }
