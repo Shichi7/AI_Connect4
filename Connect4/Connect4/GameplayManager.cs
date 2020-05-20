@@ -15,6 +15,7 @@ namespace Connect4
         GameState state;
         Player[] players = new Player[2];
 
+        bool first_move;
         public bool game_started;
         int player_turn;
 
@@ -28,6 +29,7 @@ namespace Connect4
         {
             state = new GameState(window);
             game_started = true;
+            first_move = true;
 
             string cpu1_alg = window.Algorithm1Button.Text;
             int cpu1_depth = int.Parse(window.Depth1Button.Text, NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite);
@@ -88,6 +90,11 @@ namespace Connect4
 
             if (state.spaceInColumn(column))
             {
+                if (first_move)
+                {
+                    first_move = false;
+                }
+
                 int row = state.newMove(column, player_turn);
                 string checker_name = players[player_turn].color.ToLower() + row + column;
                 Image checker = (Image)window.FindName(checker_name);
@@ -138,7 +145,7 @@ namespace Connect4
             int column = 0;
             string mode = players[player_turn].algorithm;
 
-            if (mode.Equals("RANDOM"))
+            if ((mode.Equals("RANDOM"))||(first_move))
             {
                 column = random.Next(7);
             }

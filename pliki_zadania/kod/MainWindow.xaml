@@ -1,0 +1,127 @@
+﻿<Window x:Class="Connect4.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Connect4"
+        mc:Ignorable="d"
+        Title="CONNECT4" Height="900" Width="1600"
+        ResizeMode="NoResize"
+        WindowStyle="None"
+        KeyUp="Window_KeyUp">
+    <Window.Background>
+        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+            <GradientStop Color="#FF101A36" Offset="1"/>
+            <GradientStop Color="#FF002085"/>
+        </LinearGradientBrush>
+    </Window.Background>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="15*" />
+            <ColumnDefinition Width="10*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="9*" />
+        </Grid.RowDefinitions>
+
+        <Image Grid.Column="1" Grid.Row="0" Source="/Resources/logo2.png"/>
+
+        <Grid x:Name="Arrows_Grid" Grid.Column="0" Grid.Row="0" Margin="30 10 45 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+        </Grid>
+
+        <Grid x:Name="Checkers_Grid" Grid.Column="0" Grid.Row="1" Margin="30 20 45 30">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+        </Grid>
+
+        <Image x:Name="board_wall" PreviewMouseMove="Board_wall_PreviewMouseMove" PreviewMouseLeftButtonUp="Board_wall_PreviewMouseLeftButtonUp" Grid.Column="0"  Grid.Row="1" Margin="10 ">
+            <Image.Source>
+                <BitmapImage UriSource="/Resources/board.png" />
+            </Image.Source>
+        </Image>
+
+        <Grid Margin="20" Grid.Column="1" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="2*" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="5*" />
+                <RowDefinition Height="2*" />
+            </Grid.RowDefinitions>
+
+            <TextBox x:Name="StartButton1" PreviewMouseLeftButtonUp="StartButton1_PreviewMouseLeftButtonUp" MouseEnter="Button_MouseEnter" MouseLeave="Button_MouseLeave" Text="PLAYER VS PLAYER" Grid.Row="0" Style="{StaticResource ButtonTextBox}"/>
+            <TextBox x:Name="StartButton2" PreviewMouseLeftButtonUp="StartButton2_PreviewMouseLeftButtonUp" MouseEnter="Button_MouseEnter" MouseLeave="Button_MouseLeave" Text="PLAYER VS CPU1" Grid.Row="1" Style="{StaticResource ButtonTextBox}"/>
+            <TextBox x:Name="StartButton3" PreviewMouseLeftButtonUp="StartButton3_PreviewMouseLeftButtonUp" MouseEnter="Button_MouseEnter" MouseLeave="Button_MouseLeave" Text="CPU1 VS CPU2" Grid.Row="2" Style="{StaticResource ButtonTextBox}"/>
+
+            <Grid Grid.Row="3">
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Column="0" Grid.Row="0" Text="CPU1 MODE" Style="{StaticResource SimpleTextBlock}"/>
+                <TextBlock Grid.Column="2" Grid.Row="0" Text="CPU2 MODE" Style="{StaticResource SimpleTextBlock}"/>
+                <TextBox x:Name="Algorithm1Button" PreviewMouseLeftButtonDown="AlgorithmButton_PreviewMouseLeftButtonDown" MouseEnter="Button_MouseEnter" MouseLeave="Button_MouseLeave" Text="MINMAX" Grid.Column="1" Grid.Row="0" Style="{StaticResource SmallButtonTextBox}"/>
+                <TextBox x:Name="Algorithm2Button" PreviewMouseLeftButtonDown="AlgorithmButton_PreviewMouseLeftButtonDown" MouseEnter="Button_MouseEnter" MouseLeave="Button_MouseLeave" Text="MINMAX" Grid.Column="3" Grid.Row="0" Style="{StaticResource SmallButtonTextBox}"/>
+
+                <TextBlock Grid.Column="0" Grid.Row="1" Text="CPU1 DEPTH" Style="{StaticResource SimpleTextBlock}"/>
+                <TextBlock Grid.Column="2" Grid.Row="1" Text="CPU2 DEPTH" Style="{StaticResource SimpleTextBlock}"/>
+                <TextBox x:Name="Depth1Button" MouseEnter="Button_MouseEnter" MouseLeave="Button_MouseLeave" Text="5" Grid.Column="1" Grid.Row="1" Style="{StaticResource SmallButtonTextBoxEditable}"/>
+                <TextBox x:Name="Depth2Button" MouseEnter="Button_MouseEnter" MouseLeave="Button_MouseLeave" Text="5" Grid.Column="3" Grid.Row="1" Style="{StaticResource SmallButtonTextBoxEditable}"/>
+
+                <TextBlock Grid.Column="0" Grid.Row="2" Text="CPU1 STRAT" Style="{StaticResource SimpleTextBlock}"/>
+                <TextBlock Grid.Column="2" Grid.Row="2" Text="CPU2 STRAT" Style="{StaticResource SimpleTextBlock}"/>
+                <TextBox x:Name="Strategy1Button" PreviewMouseLeftButtonDown="StrategyButton_PreviewMouseLeftButtonDown" MouseEnter="Button_MouseEnter" MouseLeave="Button_MouseLeave" Text="BALANCED" Grid.Column="1" Grid.Row="2" Style="{StaticResource SmallButtonTextBoxEditable}"/>
+                <TextBox x:Name="Strategy2Button" PreviewMouseLeftButtonDown="StrategyButton_PreviewMouseLeftButtonDown" MouseEnter="Button_MouseEnter" MouseLeave="Button_MouseLeave" Text="BALANCED" Grid.Column="3" Grid.Row="2" Style="{StaticResource SmallButtonTextBoxEditable}"/>
+            </Grid>
+            <Grid Grid.Row="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBox x:Name="Stats1_TextBlock" Grid.Column="0" Style="{StaticResource SmallButtonTextBox}"/>
+                <TextBox x:Name="Stats2_TextBlock" Grid.Column="1" Style="{StaticResource SmallButtonTextBox}"/>
+            </Grid>
+
+            <TextBox x:Name="Turn_TextBlock" Grid.Row="6" Style="{StaticResource ButtonTextBox}"/>
+        </Grid>
+
+    </Grid>
+</Window>
