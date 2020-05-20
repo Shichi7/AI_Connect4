@@ -148,39 +148,57 @@ namespace Connect4
             }
             else if (mode.Equals("ALPHA/BETA"))
             {
-                //column = minMaxInit(state, players[player_turn].depth, true);
+                column = minMaxInit(state, players[player_turn].depth, true);
             }
             return column;
         }
 
-         public int minMaxInit(GameState state, int depth)
-         {
-             int best_column = 0;
-             double best_score = -int.MaxValue;
+        public int minMaxInit(GameState state, int depth, bool alphabeta = false)
+        {
+            double alpha = -int.MaxValue;      
+            double beta = int.MaxValue;
 
-             for (int column = 0; column < 7; column++)
-             {
-                 if (state.spaceInColumn(column))
-                 {
-                     int row = state.newMove(column, player_turn);
-                     double temp_score = minMax(state, depth - 1, false, row, column);
-                     if (temp_score>best_score)
-                     {
-                         best_score = temp_score;
-                         best_column = column;
-                     }
+            int best_column = 0;
+            double best_score = -int.MaxValue;
+            int column = 0;
+            bool alphabeta_break = false;
 
-                     state.reverseMove(column);
-                 }
-             }
+            while ((column<7)&&(!alphabeta_break))
+            {
+                if (state.spaceInColumn(column))
+                {
+                    int row = state.newMove(column, player_turn);
+                    double temp_score = minMax(state, depth - 1, false, row, column, alphabeta, alpha, beta);
+                    if (temp_score>best_score)
+                    {
+                        best_score = temp_score;
+                        best_column = column;
+                    }
 
-             return best_column;
-         }
+                    if (alphabeta)
+                    {
+                        if (temp_score>alpha)
+                        {
+                            alpha = temp_score;
+                        }
+                        if (beta<=alpha)
+                        {
+                            alphabeta_break = true;
+                        }
+                    }
 
-        public double minMax(GameState state, int depth, bool current_player, int last_row, int last_column)
+                    state.reverseMove(column);
+                }
+                column++;
+            }
+
+            return best_column;
+        }
+
+        public double minMax(GameState state, int depth, bool current_player, int last_row, int last_column, bool alphabeta, double alpha, double beta)
         {
             double score = 0;
-            if (state.checkIfFinished(last_row, last_column))
+            if(state.checkIfFinished(last_row, last_column))
             {
                 if (!current_player) score = 10000;
 
@@ -194,35 +212,55 @@ namespace Connect4
             {
                 state.calculateWinningRows();
 
-                players[player_turn].setWinningRows(state.players_winning_rows[player_turn], state.players_winning_rows[(player_turn + 1) % 2]);
+                players[player_turn].setWinningRows(state.players_winning_rows[player_turn], state.players_winning_rows[(player_turn+1)%2]);
                 score = players[player_turn].score;
             }
             else
             {
                 List<double> children_scores = new List<double>();
 
-                for (int column = 0; column < 7; column++)
+                int column = 0;
+                bool alphabeta_break = false;
+
+                while ((column < 7) && (!alphabeta_break))
                 {
                     if (state.spaceInColumn(column))
                     {
                         int row = -1;
                         double temp_score = -1;
-                        if (current_player)
+                        if(current_player)
                         {
                             row = state.newMove(column, player_turn);
-                            temp_score = minMax(state, depth - 1, false, row, column);
+                            temp_score = minMax(state, depth - 1, false, row, column, alphabeta, alpha, beta);
                             children_scores.Add(temp_score);
                             state.reverseMove(column);
                         }
                         else
                         {
-                            row = state.newMove(column, (player_turn + 1) % 2);
-                            temp_score = minMax(state, depth - 1, true, row, column);
+                            row = state.newMove(column, (player_turn+1)%2);
+                            temp_score = minMax(state, depth - 1, true, row, column, alphabeta, alpha, beta);
                             children_scores.Add(temp_score);
                             state.reverseMove(column);
                         }
 
+                        if (alphabeta)
+                        {
+                            if ((current_player)&&(temp_score > alpha))
+                            {
+                                alpha = temp_score;
+                            }
+                            else if ((!current_player) && (temp_score < beta))
+                            {
+                                beta = temp_score;
+                            }
+
+                            if (beta <= alpha)
+                            {
+                                alphabeta_break = true;
+                            }
+                        }
                     }
+                    column++;
                 }
 
                 if (current_player)
@@ -237,127 +275,5 @@ namespace Connect4
 
             return score;
         }
-
-            /* public int minMaxInit(GameState state, int depth, bool alphabeta = false)
-             {
-                 double alpha = -int.MaxValue;      
-                 double beta = int.MaxValue;
-
-                 int best_column = 0;
-                 double best_score = -int.MaxValue;
-                 int column = 0;
-                 bool alphabeta_break = false;
-
-                 while ((column<7)&&(!alphabeta_break))
-                 {
-                     if (state.spaceInColumn(column))
-                     {
-                         int row = state.newMove(column, player_turn);
-                         double temp_score = minMax(state, depth - 1, false, row, column, alphabeta, alpha, beta);
-                         if (temp_score>best_score)
-                         {
-                             best_score = temp_score;
-                             best_column = column;
-                         }
-
-                         if (alphabeta)
-                         {
-                             if (temp_score>alpha)
-                             {
-                                 alpha = temp_score;
-                             }
-                             if (beta<=alpha)
-                             {
-                                 alphabeta_break = true;
-                             }
-                         }
-
-                         state.reverseMove(column);
-                     }
-                     column++;
-                 }
-
-                 return best_column;
-             }
-
-            public double minMax(GameState state, int depth, bool current_player, int last_row, int last_column, bool alphabeta, double alpha, double beta)
-            {
-                double score = 0;
-                if(state.checkIfFinished(last_row, last_column))
-                {
-                    if (!current_player) score = 10000;
-                    else score = -score;
-                }
-                else if (state.checkIfTied())
-                {
-                    score = 0;
-                }
-                else if (depth == 0)
-                {
-                    state.calculateWinningRows();
-
-                    players[player_turn].setWinningRows(state.players_winning_rows[player_turn], state.players_winning_rows[(player_turn+1)%2]);
-                    score = players[player_turn].score;
-                }
-                else
-                {
-                    List<double> children_scores = new List<double>();
-
-                    int column = 0;
-                    bool alphabeta_break = false;
-
-                    while ((column < 7) && (!alphabeta_break))
-                    {
-                        if (state.spaceInColumn(column))
-                        {
-                            int row = -1;
-                            double temp_score = -1;
-                            if(current_player)
-                            {
-                                row = state.newMove(column, player_turn);
-                                temp_score = minMax(state, depth - 1, false, row, column, alphabeta, alpha, beta);
-                                children_scores.Add(temp_score);
-                                state.reverseMove(column);
-                            }
-                            else
-                            {
-                                row = state.newMove(column, (player_turn+1)%2);
-                                temp_score = minMax(state, depth - 1, true, row, column, alphabeta, alpha, beta);
-                                children_scores.Add(temp_score);
-                                state.reverseMove(column);
-                            }
-
-                            if (alphabeta)
-                            {
-                                if ((current_player)&&(temp_score > alpha))
-                                {
-                                    alpha = temp_score;
-                                }
-                                else if ((!current_player) && (temp_score < beta))
-                                {
-                                    beta = temp_score;
-                                }
-
-                                if (beta <= alpha)
-                                {
-                                    alphabeta_break = true;
-                                }
-                            }
-                        }
-                        column++;
-                    }
-
-                    if (current_player)
-                    {
-                        score = children_scores.Max();
-                    }
-                    else
-                    {
-                        score = children_scores.Min();
-                    }
-                }
-
-                return score;
-            }*/
-        }
+    }
 }
